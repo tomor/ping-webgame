@@ -213,7 +213,7 @@ function AI(playerToControl) {
     // method which follows the ball
     function moveTowardsBall() {
         // Move the same distance the player would move, to make it fair.
-        if(ball.getPosition()[1] >= ctl.getPosition()[1] + 64) {
+        if(ball.getPosition()[1] >= ctl.getPosition()[1] + 74) {
           ctl.move(distance);
         } else {
           ctl.move(-distance);
@@ -228,15 +228,61 @@ function AI(playerToControl) {
                 currentState = State.WAITING;
                 break;
             case State.WAITING:
+                // check if AI is the owner, if yes, shoot
+                if (ball.getOwner() === opponent) {
+                    currentState = State.AIMING;
+                    return;
+                }
+
                 setTimeout(function() {
                     currentState = State.FOLLOWING;
                 }, 400);
                 break;
             case State.AIMING:
-                // Do something to aim.
+                aimAndFire();
                 break;
         }
     };
+
+    // repeat something cb-times and then start cbFinal method
+    function repeat(cb, cbFinal, interval, count) {
+        var timeout = function() {
+          repeat(cb, cbFinal, interval, count-1);
+        };
+        
+        if (count <= 0) {
+            cbFinal();
+        } else {
+            cb();
+            setTimeout(function() {
+              repeat(cb, cbFinal, interval, count-1);
+            }, interval);
+        }
+    }
+
+    function aimAndFire() {
+        // Repeat the motion action 5 to 10 times.
+        var numRepeats = Math.floor(5 + Math.random() * 5);
+
+        function randomMove() {
+            if (Math.random() > .5) {
+              ctl.move(-distance);
+            } else {
+              ctl.move(distance);
+            }
+        }
+
+        function randomAimAndFire() {
+            var d = Math.floor( Math.random() * 3 - 1 );
+            opponent.setAim(d);
+            opponent.fire();
+
+            // Finally, set the state to FOLLOWING.
+            currentState = State.FOLLOWING;
+        }
+
+        repeat(randomMove, randomAimAndFire, 250, numRepeats);
+    }
 
     return {
       update: update
