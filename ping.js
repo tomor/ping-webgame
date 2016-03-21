@@ -1,3 +1,12 @@
+// game variables
+var ball;
+var player;
+var opponent;
+var ai;
+var lastUpdate;
+var distance = 24;  // The amount to move the player each step.
+var score = [0, 0];
+
 
 var Ball = function() {
     // List of variables only the object can see (private variables).
@@ -289,15 +298,6 @@ function AI(playerToControl) {
     };
 }
 
-
-// game variables
-var ball;
-var player;
-var opponent;
-var ai;
-var lastUpdate;
-var distance = 24;  // The amount to move the player each step.
-var score = [0, 0];
 
 
 // method for updating the ball position
