@@ -297,6 +297,7 @@ var opponent;
 var ai;
 var lastUpdate;
 var distance = 24;  // The amount to move the player each step.
+var score = [0, 0];
 
 
 // method for updating the ball position
