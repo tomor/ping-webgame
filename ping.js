@@ -103,12 +103,13 @@ var Ball = function() {
     // Right now this will just be the ability to update the state of the ball,
     // and start and stop the motion of the ball.
     return {
-      update:      update,
-      pause:       pause,
-      start:       start,
-      getOwner:    function()        { return owner; },
-      setOwner:    function(player)  { owner = player; },
-      setVelocity: function(veloc)   { velocity = veloc; }
+        update:      update,
+        pause:       pause,
+        start:       start,
+        getOwner:    function()        { return owner; },
+        setOwner:    function(player)  { owner = player; },
+        setVelocity: function(veloc)   { velocity = veloc; },
+        getPosition: function()        { return position; }
     };
 };
 
@@ -198,11 +199,56 @@ var Player = function (elementName, side) {
     };
 };
 
+function AI(playerToControl) {
+    var ctl = playerToControl;
+
+    var State = {
+      WAITING: 0,
+      FOLLOWING: 1,
+      AIMING: 2
+    };
+    
+    var currentState = State.FOLLOWING;
+
+    // method which follows the ball
+    function moveTowardsBall() {
+        // Move the same distance the player would move, to make it fair.
+        if(ball.getPosition()[1] >= ctl.getPosition()[1] + 64) {
+          ctl.move(distance);
+        } else {
+          ctl.move(-distance);
+        }
+    };
+
+    // function which is called regularly
+    function update() {
+        switch (currentState) {
+            case State.FOLLOWING:
+                moveTowardsBall();
+                currentState = State.WAITING;
+                break;
+            case State.WAITING:
+                setTimeout(function() {
+                    currentState = State.FOLLOWING;
+                }, 400);
+                break;
+            case State.AIMING:
+                // Do something to aim.
+                break;
+        }
+    };
+
+    return {
+      update: update
+    };
+}
+
 
 // game variables
 var ball;
 var player;
 var opponent;
+var ai;
 var lastUpdate;
 var distance = 24;  // The amount to move the player each step.
 
@@ -212,6 +258,7 @@ function update(time) {
     var t = time - lastUpdate;
     lastUpdate = time;
     ball.update(t);
+    ai.update();
     requestAnimationFrame(update);
 }
 
@@ -226,6 +273,9 @@ $(document).ready(function() {
     player.move(0);
     opponent = Player('opponent', 'right');
     opponent.move(0);
+
+    // create AI
+    ai = AI(opponent);
 
     // allow to move the player - use handjs polyfil
     // pointerdown is the universal event for all types of pointers -- a finger,
