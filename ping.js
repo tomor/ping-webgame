@@ -10,6 +10,19 @@ var Ball = function() {
     var owner = undefined;
 
 
+    // Method which checks if ball passed any player
+    function checkScored() {
+        if (position[0] <= 0) {
+            pause();
+            $(document).trigger('ping:opponentScored');
+        }
+
+        if (position[0] >= innerWidth) {
+            pause();
+            $(document).trigger('ping:playerScored');
+        }
+    }
+
     // Method that moves the ball based on its velocity. This method is only used
     // internally and will not be made accessible outside of the object.
     function move(t) {
@@ -47,6 +60,9 @@ var Ball = function() {
         if(!paused) {
             move(t);
         }
+
+        // check if anybody scored
+        checkScored();
 
         // The ball is under control of a player, no need to update.
         if (owner !== undefined) {
@@ -185,6 +201,8 @@ var Player = function (elementName, side) {
 
 // game variables
 var ball;
+var player;
+var opponent;
 var lastUpdate;
 var distance = 24;  // The amount to move the player each step.
 
@@ -227,6 +245,7 @@ $(document).ready(function() {
     requestAnimationFrame(update);
 });
 
+// make keyboard controll the game
 $(document).keydown(function(event) {
     var event = event || window.event;
 
@@ -263,4 +282,21 @@ $(document).keyup(function(event) {
     }
 
     return false;
+});
+
+// listen to events
+$(document).on('ping:playerScored', function(e) {
+    console.log('player scored!');
+    score[0]++;
+    $('#playerScore').text(score[0]);
+    ball.setOwner(opponent);
+    ball.start();
+});
+
+$(document).on('ping:opponentScored', function(e) {
+    console.log('opponent scored!');
+    score[1]++;
+    $('#opponentScore').text(score[1]);
+    ball.setOwner(player);
+    ball.start();
 });
