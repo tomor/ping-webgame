@@ -300,7 +300,7 @@ function AI(playerToControl) {
 
 
 
-// method for updating the ball position
+// method which is regularly called by Window.requestAnimationFrame()
 function update(time) {
     var t = time - lastUpdate;
     lastUpdate = time;
@@ -324,7 +324,7 @@ $(document).ready(function() {
     // create AI
     ai = AI(opponent);
 
-    // allow to move the player - use handjs polyfil
+    // allow to move the player on mobile device - use handjs polyfil
     // pointerdown is the universal event for all types of pointers -- a finger,
     // a mouse, a stylus and so on.
     $('#up')    .bind("pointerdown", function() { player.move(-distance);});
@@ -342,7 +342,7 @@ $(document).ready(function() {
     requestAnimationFrame(update);
 });
 
-// make keyboard controll the game
+// set keyboard control of the game
 $(document).keydown(function(event) {
     var event = event || window.event;
 
@@ -381,7 +381,7 @@ $(document).keyup(function(event) {
     return false;
 });
 
-// listen to events
+// listen to events when any player scores
 $(document).on('ping:playerScored', function(e) {
     console.log('player scored!');
     score[0]++;
@@ -389,7 +389,6 @@ $(document).on('ping:playerScored', function(e) {
     ball.setOwner(opponent);
     ball.start();
 });
-
 $(document).on('ping:opponentScored', function(e) {
     console.log('opponent scored!');
     score[1]++;
